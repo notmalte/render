@@ -2,6 +2,8 @@ use std::time::Duration;
 
 use minifb::{Key, Window, WindowOptions};
 
+use crate::color::Color;
+
 pub struct Canvas {
     width: u32,
     height: u32,
@@ -17,14 +19,13 @@ impl Canvas {
         }
     }
 
-    pub fn set_pixel(&mut self, x: i32, y: i32, r: u8, g: u8, b: u8) {
+    pub fn set_pixel(&mut self, x: i32, y: i32, color: Color) {
         let screen_x = (x + (self.width as i32) / 2) as u32;
         let screen_y = (-y + (self.height as i32) / 2) as u32;
 
         if screen_x < self.width && screen_y < self.height {
             let index = (screen_y * self.width + screen_x) as usize;
-            let color = (r as u32) << 16 | (g as u32) << 8 | b as u32;
-            self.buffer[index] = color;
+            self.buffer[index] = color.into();
         }
     }
 
