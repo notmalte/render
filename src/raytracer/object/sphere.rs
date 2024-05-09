@@ -4,14 +4,16 @@ pub struct Sphere {
     center: Vector,
     radius: f64,
     color: Color,
+    specular: Option<f64>,
 }
 
 impl Sphere {
-    pub fn new(center: Vector, radius: f64, color: Color) -> Self {
+    pub fn new(center: Vector, radius: f64, color: Color, specular: Option<f64>) -> Self {
         Self {
             center,
             radius,
             color,
+            specular,
         }
     }
 }
@@ -50,5 +52,13 @@ impl Raytraceable for Sphere {
 
     fn color(&self) -> Color {
         self.color
+    }
+
+    fn normal(&self, point: Vector) -> Vector {
+        (point - self.center).normalize()
+    }
+
+    fn specular(&self) -> Option<f64> {
+        self.specular
     }
 }
