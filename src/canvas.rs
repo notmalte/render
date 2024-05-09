@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{ops::Range, time::Duration};
 
 use minifb::{Key, Window, WindowOptions};
 
@@ -19,9 +19,49 @@ impl Canvas {
         }
     }
 
+    pub fn width(&self) -> u32 {
+        self.width
+    }
+
+    pub fn height(&self) -> u32 {
+        self.height
+    }
+
+    pub fn min_x(&self) -> i32 {
+        -(self.width as i32) / 2
+    }
+
+    pub fn max_x(&self) -> i32 {
+        (self.width as i32) / 2
+    }
+
+    pub fn min_y(&self) -> i32 {
+        -(self.height as i32) / 2
+    }
+
+    pub fn max_y(&self) -> i32 {
+        (self.height as i32) / 2
+    }
+
+    pub fn x_range(&self) -> Range<i32> {
+        self.min_x()..self.max_x()
+    }
+
+    pub fn y_range(&self) -> Range<i32> {
+        self.min_y()..self.max_y()
+    }
+
+    pub fn x_to_screen(&self, x: i32) -> u32 {
+        (x + (self.width as i32) / 2) as u32
+    }
+
+    pub fn y_to_screen(&self, y: i32) -> u32 {
+        (-y + (self.height as i32) / 2) as u32
+    }
+
     pub fn set_pixel(&mut self, x: i32, y: i32, color: Color) {
-        let screen_x = (x + (self.width as i32) / 2) as u32;
-        let screen_y = (-y + (self.height as i32) / 2) as u32;
+        let screen_x = self.x_to_screen(x);
+        let screen_y = self.y_to_screen(y);
 
         if screen_x < self.width && screen_y < self.height {
             let index = (screen_y * self.width + screen_x) as usize;

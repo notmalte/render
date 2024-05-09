@@ -1,14 +1,28 @@
-use crate::color::Color;
+use crate::{
+    canvas::Canvas,
+    color::Color,
+    raytracer::{object::sphere::Sphere, scene::Scene, Raytracer},
+    vector::Vector,
+};
 
 mod canvas;
 mod color;
+mod raytracer;
+mod vector;
 
 fn main() {
-    let mut c = canvas::Canvas::new(800, 600);
+    let mut c = Canvas::new(512, 512);
 
-    c.set_pixel(0, 0, Color::RED);
-    c.set_pixel(100, 100, Color::GREEN);
-    c.set_pixel(-100, -100, Color::BLUE);
+    let mut scene = Scene::new();
+    scene.add_object(Box::new(Sphere::new(
+        Vector::new(0., -1., 3.),
+        1.,
+        Color::RED,
+    )));
+
+    let raytracer = Raytracer::new(scene);
+
+    raytracer.render(&mut c);
 
     c.display();
 }
