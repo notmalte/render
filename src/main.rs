@@ -19,24 +19,28 @@ fn main() {
         1.,
         Color::RED,
         Some(500.),
+        Some(0.2),
     )));
     scene.add_object(Box::new(Sphere::new(
         Vector::new(2., 0., 4.),
         1.,
         Color::BLUE,
         Some(500.),
+        Some(0.3),
     )));
     scene.add_object(Box::new(Sphere::new(
         Vector::new(-2., 0., 4.),
         1.,
         Color::GREEN,
         Some(10.),
+        Some(0.4),
     )));
     scene.add_object(Box::new(Sphere::new(
         Vector::new(0., -5001., 0.),
         5000.,
         Color::YELLOW,
         Some(1000.),
+        Some(0.5),
     )));
 
     scene.add_light(Light::Ambient { intensity: 0.2 });

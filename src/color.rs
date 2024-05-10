@@ -1,4 +1,4 @@
-use std::ops::Mul;
+use std::ops::{Add, Mul};
 
 #[derive(Clone, Copy)]
 pub struct Color {
@@ -54,6 +54,18 @@ impl Mul<f64> for Color {
             r: (self.r as f64 * rhs).min(255.).max(0.) as u8,
             g: (self.g as f64 * rhs).min(255.).max(0.) as u8,
             b: (self.b as f64 * rhs).min(255.).max(0.) as u8,
+        }
+    }
+}
+
+impl Add for Color {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self::Output {
+            r: self.r.saturating_add(rhs.r),
+            g: self.g.saturating_add(rhs.g),
+            b: self.b.saturating_add(rhs.b),
         }
     }
 }

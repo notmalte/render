@@ -12,7 +12,7 @@ pub struct Scene {
 impl Scene {
     pub fn new() -> Self {
         Self {
-            base_color: Color::WHITE,
+            base_color: Color::BLACK,
             objects: vec![],
             lights: vec![],
         }

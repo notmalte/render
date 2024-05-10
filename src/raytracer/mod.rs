@@ -26,6 +26,10 @@ pub trait Raytraceable {
     fn specular(&self) -> Option<f64> {
         None
     }
+
+    fn reflective(&self) -> Option<f64> {
+        None
+    }
 }
 
 pub struct Raytracer {
@@ -48,6 +52,10 @@ impl Raytracer {
         Vector::new(vx, vy, self.viewport.distance())
     }
 
+    fn reflect_ray(&self, ray: Vector, normal: Vector) -> Vector {
+        2. * normal * normal.dot(ray) - ray
+    }
+
     fn compute_lighting(
         &self,
         point: Vector,
@@ -67,7 +75,7 @@ impl Raytracer {
             }
 
             if let Some(specular) = specular {
-                let r = (2. * n * n_dot_l) - l;
+                let r = self.reflect_ray(l, n);
                 let r_dot_v = r.dot(view);
 
                 if r_dot_v > 0. {
@@ -135,24 +143,57 @@ impl Raytracer {
         closest
     }
 
-    fn trace_ray(&self, origin: Vector, direction: Vector, t_min: f64, t_max: f64) -> Color {
+    fn trace_ray(
+        &self,
+        origin: Vector,
+        direction: Vector,
+        t_min: f64,
+        t_max: f64,
+        recursion_depth: u8,
+    ) -> Color {
         let closest = self.intersect_closest(origin, direction, t_min, t_max);
 
-        closest.map_or(self.scene.base_color(), |(t, object)| {
-            let point = origin + t * direction;
-            let normal = object.normal(point);
+        if closest.is_none() {
+            return self.scene.base_color();
+        }
 
-            object.color() * self.compute_lighting(point, normal, -direction, object.specular())
-        })
+        let (t, object) = closest.unwrap();
+
+        let point = origin + t * direction;
+        let normal = object.normal(point);
+
+        let local_color =
+            object.color() * self.compute_lighting(point, normal, -direction, object.specular());
+
+        let reflective = object.reflective();
+
+        if recursion_depth == 0 || reflective.is_none() {
+            return local_color;
+        }
+
+        let reflective = reflective.unwrap();
+
+        let reflected_ray = self.reflect_ray(-direction, normal);
+        let reflected_color = self.trace_ray(
+            point,
+            reflected_ray,
+            0.001,
+            f64::INFINITY,
+            recursion_depth - 1,
+        );
+
+        local_color * (1. - reflective) + reflected_color * reflective
     }
 
     pub fn render(&self, canvas: &mut Canvas) {
         let camera_position = Vector::new(0., 0., 0.);
 
+        let recursion_depth = 3;
+
         for x in canvas.x_range() {
             for y in canvas.y_range() {
                 let d = self.canvas_to_viewport(canvas, x, y);
-                let color = self.trace_ray(camera_position, d, 0., f64::INFINITY);
+                let color = self.trace_ray(camera_position, d, 1., f64::INFINITY, recursion_depth);
 
                 canvas.set_pixel(x, y, color);
             }
