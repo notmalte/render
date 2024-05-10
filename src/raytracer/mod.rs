@@ -89,12 +89,23 @@ impl Raytracer {
                 } => {
                     let l = position - point;
 
+                    if self.intersect_closest(point, l, 0.001, 1.).is_some() {
+                        continue;
+                    }
+
                     i += diffuse_and_specular(intensity, l, normal);
                 }
                 Light::Directional {
                     intensity,
                     direction,
                 } => {
+                    if self
+                        .intersect_closest(point, direction, 0.001, f64::INFINITY)
+                        .is_some()
+                    {
+                        continue;
+                    }
+
                     i += diffuse_and_specular(intensity, direction, normal);
                 }
             }
@@ -103,22 +114,32 @@ impl Raytracer {
         i
     }
 
-    fn trace_ray(&self, origin: Vector, direction: Vector, t_min: f64, t_max: f64) -> Color {
-        let mut closest_t = None;
-        let mut closest_object = None;
+    fn intersect_closest(
+        &self,
+        origin: Vector,
+        direction: Vector,
+        t_min: f64,
+        t_max: f64,
+    ) -> Option<(f64, &dyn Raytraceable)> {
+        let mut closest: Option<(_, _)> = None;
 
         for object in self.scene.objects() {
             if let Some(t) = object.intersect_closest(origin, direction, t_min, t_max) {
                 assert!(t >= t_min && t <= t_max);
-                if closest_t.is_none() || t < closest_t.unwrap() {
-                    closest_t = Some(t);
-                    closest_object = Some(object);
+                if closest.is_none() || t < closest.unwrap().0 {
+                    closest = Some((t, object.as_ref()));
                 }
             }
         }
 
-        closest_object.map_or(self.scene.base_color(), |object| {
-            let point = origin + closest_t.unwrap() * direction;
+        closest
+    }
+
+    fn trace_ray(&self, origin: Vector, direction: Vector, t_min: f64, t_max: f64) -> Color {
+        let closest = self.intersect_closest(origin, direction, t_min, t_max);
+
+        closest.map_or(self.scene.base_color(), |(t, object)| {
+            let point = origin + t * direction;
             let normal = object.normal(point);
 
             object.color() * self.compute_lighting(point, normal, -direction, object.specular())
