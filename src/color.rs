@@ -2,47 +2,67 @@ use std::ops::{Add, AddAssign, Div, Mul};
 
 #[derive(Clone, Copy)]
 pub struct Color {
-    pub r: u8,
-    pub g: u8,
-    pub b: u8,
+    pub r: f64,
+    pub g: f64,
+    pub b: f64,
 }
 
 impl Color {
-    pub const BLACK: Self = Self { r: 0, g: 0, b: 0 };
-    pub const WHITE: Self = Self {
-        r: 255,
-        g: 255,
-        b: 255,
+    pub const BLACK: Self = Self {
+        r: 0.,
+        g: 0.,
+        b: 0.,
     };
-    pub const RED: Self = Self { r: 255, g: 0, b: 0 };
-    pub const GREEN: Self = Self { r: 0, g: 255, b: 0 };
-    pub const BLUE: Self = Self { r: 0, g: 0, b: 255 };
+    pub const WHITE: Self = Self {
+        r: 1.,
+        g: 1.,
+        b: 1.,
+    };
+    pub const RED: Self = Self {
+        r: 1.,
+        g: 0.,
+        b: 0.,
+    };
+    pub const GREEN: Self = Self {
+        r: 0.,
+        g: 1.,
+        b: 0.,
+    };
+    pub const BLUE: Self = Self {
+        r: 0.,
+        g: 0.,
+        b: 1.,
+    };
     pub const YELLOW: Self = Self {
-        r: 255,
-        g: 255,
-        b: 0,
+        r: 1.,
+        g: 1.,
+        b: 0.,
     };
     pub const CYAN: Self = Self {
-        r: 0,
-        g: 255,
-        b: 255,
+        r: 0.,
+        g: 1.,
+        b: 1.,
     };
     pub const MAGENTA: Self = Self {
-        r: 255,
-        g: 0,
-        b: 255,
+        r: 1.,
+        g: 0.,
+        b: 1.,
     };
 }
 
 impl Color {
-    pub fn new(r: u8, g: u8, b: u8) -> Self {
+    pub fn new(r: f64, g: f64, b: f64) -> Self {
         Self { r, g, b }
     }
 }
 
 impl From<Color> for u32 {
     fn from(color: Color) -> u32 {
-        (color.r as u32) << 16 | (color.g as u32) << 8 | color.b as u32
+        let r = (color.r * 255.).min(255.).max(0.) as u32;
+        let g = (color.g * 255.).min(255.).max(0.) as u32;
+        let b = (color.b * 255.).min(255.).max(0.) as u32;
+
+        r << 16 | g << 8 | b
     }
 }
 
@@ -51,9 +71,9 @@ impl Mul<f64> for Color {
 
     fn mul(self, rhs: f64) -> Self::Output {
         Self::Output {
-            r: (self.r as f64 * rhs).min(255.).max(0.) as u8,
-            g: (self.g as f64 * rhs).min(255.).max(0.) as u8,
-            b: (self.b as f64 * rhs).min(255.).max(0.) as u8,
+            r: self.r * rhs,
+            g: self.g * rhs,
+            b: self.b * rhs,
         }
     }
 }
@@ -71,9 +91,9 @@ impl Add for Color {
 
     fn add(self, rhs: Self) -> Self::Output {
         Self::Output {
-            r: self.r.saturating_add(rhs.r),
-            g: self.g.saturating_add(rhs.g),
-            b: self.b.saturating_add(rhs.b),
+            r: self.r + rhs.r,
+            g: self.g + rhs.g,
+            b: self.b + rhs.b,
         }
     }
 }
