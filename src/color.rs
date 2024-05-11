@@ -1,4 +1,4 @@
-use std::ops::{Add, Mul};
+use std::ops::{Add, AddAssign, Div, Mul};
 
 #[derive(Clone, Copy)]
 pub struct Color {
@@ -58,6 +58,14 @@ impl Mul<f64> for Color {
     }
 }
 
+impl Div<f64> for Color {
+    type Output = Self;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        self * (1. / rhs)
+    }
+}
+
 impl Add for Color {
     type Output = Self;
 
@@ -67,5 +75,11 @@ impl Add for Color {
             g: self.g.saturating_add(rhs.g),
             b: self.b.saturating_add(rhs.b),
         }
+    }
+}
+
+impl AddAssign for Color {
+    fn add_assign(&mut self, rhs: Self) {
+        *self = *self + rhs;
     }
 }

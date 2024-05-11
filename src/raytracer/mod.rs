@@ -45,9 +45,17 @@ impl Raytracer {
         }
     }
 
+    fn canvas_viewport_x_step(&self, canvas: &Canvas) -> f64 {
+        self.viewport.width() / canvas.width() as f64
+    }
+
+    fn canvas_viewport_y_step(&self, canvas: &Canvas) -> f64 {
+        self.viewport.height() / canvas.height() as f64
+    }
+
     fn canvas_to_viewport(&self, canvas: &Canvas, cx: i32, cy: i32) -> Vector {
-        let vx = cx as f64 * (self.viewport.width() / canvas.width() as f64);
-        let vy = cy as f64 * (self.viewport.height() / canvas.height() as f64);
+        let vx = cx as f64 * self.canvas_viewport_x_step(canvas);
+        let vy = cy as f64 * self.canvas_viewport_y_step(canvas);
 
         Vector::new(vx, vy, self.viewport.distance())
     }
@@ -190,10 +198,32 @@ impl Raytracer {
 
         let recursion_depth = 3;
 
+        let super_sampling = 2;
+
         for x in canvas.x_range() {
             for y in canvas.y_range() {
                 let d = self.canvas_to_viewport(canvas, x, y);
-                let color = self.trace_ray(camera_position, d, 1., f64::INFINITY, recursion_depth);
+
+                let mut color = Color::BLACK;
+
+                let x_step = self.canvas_viewport_x_step(canvas) / super_sampling as f64;
+                let y_step = self.canvas_viewport_y_step(canvas) / super_sampling as f64;
+
+                for dx in 0..super_sampling {
+                    for dy in 0..super_sampling {
+                        let d = d + Vector::new(dx as f64 * x_step, dy as f64 * y_step, 0.);
+
+                        let color_sample = self.trace_ray(
+                            camera_position,
+                            d,
+                            self.viewport.distance(),
+                            f64::INFINITY,
+                            recursion_depth,
+                        );
+
+                        color += color_sample / (super_sampling * super_sampling) as f64;
+                    }
+                }
 
                 canvas.set_pixel(x, y, color);
             }
