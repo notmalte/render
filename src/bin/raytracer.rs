@@ -1,14 +1,9 @@
-use crate::{
+use render::{
     canvas::Canvas,
     color::Color,
     raytracer::{light::Light, object::sphere::Sphere, scene::Scene, Raytracer},
     vector::Vector,
 };
-
-mod canvas;
-mod color;
-mod raytracer;
-mod vector;
 
 fn main() {
     let mut c = Canvas::new(512, 512);

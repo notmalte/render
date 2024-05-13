@@ -38,3 +38,9 @@ impl Scene {
         self.lights.push(light);
     }
 }
+
+impl Default for Scene {
+    fn default() -> Self {
+        Self::new()
+    }
+}
