@@ -7,5 +7,5 @@ Following the book [Computer Graphics from Scratch](https://gabrielgambetta.com/
 Run using:
 
 ```shell
-cargo run [--release]
+cargo run --release --bin raytracer
 ```
