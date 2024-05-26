@@ -1,13 +1,25 @@
-use render::{canvas::Canvas, color::Color};
+use render::{
+    canvas::Canvas,
+    color::Color,
+    rasterizer::{line::draw_line, point::Point},
+};
 
 fn main() {
     let mut c = Canvas::new(512, 512);
 
-    for x in -10..10 {
-        for y in -10..10 {
-            c.set_pixel(x, y, Color::RED);
-        }
-    }
+    draw_line(
+        &mut c,
+        Point::new(-50, -50),
+        Point::new(50, 50),
+        Color::WHITE,
+    );
+
+    draw_line(
+        &mut c,
+        Point::new(-50, 50),
+        Point::new(50, -50),
+        Color::WHITE,
+    );
 
     c.display();
 }
