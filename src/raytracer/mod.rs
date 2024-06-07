@@ -1,14 +1,14 @@
 use crate::{
     canvas::Canvas,
     color::Color,
-    raytracer::{light::Light, scene::Scene, viewport::Viewport},
+    raytracer::{light::Light, scene::Scene},
     vector::Vector,
+    viewport::Viewport,
 };
 
 pub mod light;
 pub mod object;
 pub mod scene;
-mod viewport;
 
 pub trait Raytraceable {
     fn intersect_closest(
